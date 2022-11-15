@@ -1,0 +1,227 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Latest compiled and minified CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+
+<!-- Latest compiled JavaScript -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+
+</head>
+<style>
+</style>
+
+<body>
+  <div class="container-fluid p-5 bg-primary text-white text-center">
+<h1>USER DETAILS</h1>
+</div>
+
+
+<div class="border p-5">
+  <!-- Copy this code to have a working example -->
+  <div class="container d-flex justify-content-center">
+    <div class ="row ">
+      <div class="col-md-6">
+        <div class="form-outline">
+
+          <input type="text" name="enter" id="userName" class="form-control" />
+        </div>
+      </div>
+      <div class="col-md-6">
+        <button type="button" onclick="searchUser()" id="search" class="btn btn-primary">Search</button>
+        <button type="button" onclick="createCSV()" id="search" class="btn btn-primary">Export</button>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<table class="table table-striped" id="showData" >
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>FIRST NAME</th>
+      <th>LAST NAME</th>
+      <th>USER NAME</th>
+      <th>E-MAIL</th>
+      <th>GENDER</th>
+      <th>PHONE NUMBER</th>
+      <th>SOCIAL INSURANCE NUMBER</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr id="order_table">
+
+      </tr>
+
+
+  </tbody>
+
+</table>
+
+
+
+
+
+</body>
+
+<script>
+
+document.getElementById('showData').style.display = "none";
+
+const csvUserList = [];
+
+//Fetching Random API every second
+
+function fetchUser(){
+
+    fetch("https://random-data-api.com/api/v2/users")
+    .then(res => {
+     //console.log("the response" , )
+     return res.json()
+      })
+    .then( data => {
+    //console.log("the response data", data)
+     
+    const csvData = exportCSV(data);
+    // download(csvData);
+     
+    
+    
+})
+.catch(error => {
+  console.log("the error", error)
+})
+
+
+
+}
+
+//Export the data into the CSV File
+
+const createCSV = function() {
+
+  csvRows = [];
+    console.log("the csvUserList", csvUserList[0])
+    const csvHeader = Object.keys(csvUserList[0]);
+    console.log('the header value', csvHeader)
+    csvRows.push(csvHeader.join(','));
+
+  // Sorting the user based on First name   
+    csvUserList.sort((a,b) => a.first_name > b.first_name ? 1 : -1)
+
+    csvUserList.forEach( userDetails => {
+
+    const values = Object.values(userDetails).join(',');
+    console.log("the values",Object.values(userDetails))
+    csvRows.push(values)
+    console.log("the csvRows value", csvRows);
+    
+      
+    })
+    
+    download(csvRows.join('\n'))
+
+}
+
+// Push the json data value into the Array
+
+
+const exportCSV = function (data ){
+
+  
+  var json_response = data;
+
+  console.log('the json_response value', json_response)
+
+  console.log("the csvUserList values", csvUserList.length);
+
+
+
+    csvUserList.push(json_response);
+    console.log("the csvUserList below 5 values", csvUserList.length);
+
+
+console.log("the userList", csvUserList.length);  
+  
+
+
+}
+
+
+//Downloading CSV File//
+
+const download = function (data) {
+ 
+
+  console.log("the data value for download", data);
+ // Creating a Blob for having a csv file format
+ // and passing the data with type
+ const blob = new Blob([data], { type: 'text/csv' });
+
+ // Creating an object for downloading url
+ const url = window.URL.createObjectURL(blob)
+
+ // Creating an anchor(a) tag of HTML
+ const a = document.createElement('a')
+
+ // Passing the blob downloading url
+ a.setAttribute('href', url)
+
+ // Setting the anchor tag attribute for downloading
+ // and passing the download file name
+ a.setAttribute('download', 'UserDetails.csv');
+
+ // Performing a download with click
+ a.click()
+}
+
+
+//Execute the API Call Every 1 second //
+
+ window.setInterval(fetchUser, 1000);
+
+//Search User from the list//
+
+
+ function searchUser() {
+
+  console.log("enter the userSearch field",document.getElementById('userName').value);
+
+  let getUser = document.getElementById('userName').value;
+  console.log("the getUser value", getUser)
+ 
+  if(getUser)
+  {
+    let objName = csvUserList.find(username => username.first_name ===document.getElementById('userName').value )
+    console.log("the Obj Name", objName)
+    if(objName != undefined){
+      var userData = '';
+      userData = "<td>" + objName.id + "</td><td>" +objName.first_name +"</td><td>"+  objName.last_name + 
+        "</td><td>" + objName.username + "</td><td>" + objName.email + "</td><td>"+ 
+          objName.gender + "</td><td>" + objName.phone_number + "</td><td>" + objName.social_insurance_number + "</td>";
+      
+      document.getElementById('showData').style.display = "block";
+
+      document.getElementById('order_table').innerHTML = userData  
+      
+    }else {
+
+      document.getElementById('showData').style.display = "block";
+      document.getElementById('order_table').innerHTML = "No Result Found"  
+
+    }
+  }
+
+   }
+
+  </script>  
+
+</html>
